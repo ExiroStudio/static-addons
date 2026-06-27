@@ -1,0 +1,1 @@
+/var/www/static/addons/msdf_overlay/target/release/libmsdf_overlay.so: /var/www/static/addons/msdf_overlay/src/atlas.rs /var/www/static/addons/msdf_overlay/src/encoder.rs /var/www/static/addons/msdf_overlay/src/layout.rs /var/www/static/addons/msdf_overlay/src/lib.rs /var/www/static/addons/msdf_overlay/src/parser.rs /var/www/static/addons/msdf_overlay/src/transform.rs
