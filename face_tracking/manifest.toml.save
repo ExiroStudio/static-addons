@@ -1,0 +1,53 @@
+kmanifest_version = 1
+
+# identity
+id = "face-tracking"
+name = "Face Tracking"
+version = "1.0.0"
+
+# compatibility
+api_min = 1
+api_max = 1
+
+# addon type
+kind = "behavior"
+
+# execution
+runner = "native"
+
+# relative to addon root
+entry = "runtime/linux-x86_64/bootstrap"
+
+# outputs
+[[publish]]
+name = "face.position"
+kind = "vec2"
+
+[[publish]]
+name = "face.rotation"
+kind = "vec3"
+
+[[publish]]
+name = "face.scale"
+kind = "f32"
+
+[[publish]]
+name = "face.visible"
+kind = "bool"
+
+[[publish]]
+name = "face.confidence"
+kind = "f32"
+
+# user params only
+[params.smoothing]
+type="f32"
+default=0.1
+min=0.0
+max=1.0
+
+[params.detection_threshold]
+type="f32"
+default=0.5
+min=0.1
+max=0.9

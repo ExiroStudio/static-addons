@@ -1,0 +1,23 @@
+[package]
+name = "face-tracking-addon"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Basic IO and protocol handling
+bytemuck = { version = "1.16", features = ["derive"] }
+thiserror = "1"
+
+# GPU / Inference (Build G: Real GPU)
+ort = { version = "2.0.0-rc.12", features = ["cuda", "ndarray"] }
+ndarray = "0.15"
+image = "0.24"
+
+[lib]
+name = "face_tracking_addon"
+path = "src/mod.rs"
+crate-type = ["cdylib", "lib"]
+
+[[bin]]
+name = "bootstrap"
+path = "src/main.rs"

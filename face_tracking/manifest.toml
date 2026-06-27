@@ -1,0 +1,72 @@
+manifest_version = 1
+
+# ---- identity ----
+id          = "face-tracking"
+name        = "Face Tracking Addon"
+version     = "1.0.0"
+author      = "Antigravity"
+description = "Pure head tracking addon v1.0. High-stability pose estimation for position, rotation, and scale."
+license     = "MIT"
+tags        = ["behavior", "face", "tracking", "native", "pose-solve"]
+
+# ---- engine compatibility ----
+api_min = 1
+api_max = 1
+
+# ---- kind ----
+kind = "behavior"
+
+# ---- runner ----
+runner = "native"
+entry  = "runtime/linux-x86_64/libface_tracking_addon.so"
+
+# ---- permissions ----
+[permissions_v2]
+camera = true
+gpu = "extended"
+
+# ---- signals published (FROZEN for v1.0) ----
+[[publish]]
+name = "face.position"
+kind = "vec2"
+
+[[publish]]
+name = "face.rotation"
+kind = "vec3"  # yaw, pitch, roll (radians)
+
+[[publish]]
+name = "face.scale"
+kind = "f32"
+
+[[publish]]
+name = "face.visible"
+kind = "bool"
+
+[[publish]]
+name = "face.confidence"
+kind = "f32"
+
+# ---- parameters (USER TUNABLE) ----
+[params.smoothing]
+type    = "f32"
+default = 0.1
+min     = 0.0
+max     = 1.0
+label   = "Smoothing"
+group   = "Stabilization"
+
+[params.detection_threshold]
+type    = "f32"
+default = 0.5
+min     = 0.1
+max     = 0.9
+label   = "Detection Confidence"
+group   = "Inference"
+
+[params.lost_timeout]
+type    = "f32"
+default = 0.5
+min     = 0.1
+max     = 3.0
+label   = "Lost Timeout (s)"
+group   = "Tracking"
