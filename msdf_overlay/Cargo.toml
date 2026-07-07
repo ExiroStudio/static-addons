@@ -1,0 +1,10 @@
+[package]
+name = "msdf_overlay"
+version = "1.0.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# Pure Rust std library is sufficient for this FFI implementation.

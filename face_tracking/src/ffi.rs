@@ -219,12 +219,59 @@ pub extern "C" fn create_instance(host: *mut NativeHost) -> *mut c_void {
 
 #[no_mangle]
 pub extern "C" fn update_instance(instance: *mut c_void) {
+    let start_update_time = std::time::Instant::now();
     if instance.is_null() {
+        println!("[FAILURE] [FACE TRACKING] update_instance received null instance pointer");
         return;
     }
     let state = unsafe { &mut *(instance as *mut AddonState) };
     state.epoch += 1;
+
+    let frame_num = state.epoch;
+    let thread_id = format!("{:?}", std::thread::current().id());
+    let timestamp = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_secs_f64();
+
+    println!("========== FRAME BEGIN ==========");
+    println!("frame_number: {}", frame_num);
+    println!("timestamp: {}", timestamp);
+    println!("thread id: {}", thread_id);
+    println!("===============================");
+
+    // AREA 2 - Camera capture timing
+    let start_camera_time = std::time::Instant::now();
     let mut bridge = unsafe { FfiBridgeHost::new(state.host_ptr, state.epoch) };
+    let camera_duration = start_camera_time.elapsed();
+
+    let camera_initialized = true;
+    let camera_connected = true;
+    let frame_received = bridge.frame.is_some();
+    if let Some(f) = &bridge.frame {
+        println!("[CAMERA] camera initialized? {}", camera_initialized);
+        println!("[CAMERA] camera connected? {}", camera_connected);
+        println!("[CAMERA] frame received? {}", frame_received);
+        println!("[CAMERA] frame width: {}", f.width);
+        println!("[CAMERA] frame height: {}", f.height);
+        println!("[CAMERA] pixel format: RGBA8");
+        println!("[CAMERA] stride: {}", f.width * 4);
+        println!("[CAMERA] frame byte size: {}", f.len);
+        println!("[CAMERA] pointer address: {:p}", f.data);
+        println!("[CAMERA] capture duration: {:?}", camera_duration);
+    } else {
+        println!("[CAMERA] camera initialized? {}", camera_initialized);
+        println!("[CAMERA] camera connected? {}", camera_connected);
+        println!("[CAMERA] frame received? {}", frame_received);
+        println!("[CAMERA] frame width: 0");
+        println!("[CAMERA] frame height: 0");
+        println!("[CAMERA] pixel format: unknown");
+        println!("[CAMERA] stride: 0");
+        println!("[CAMERA] frame byte size: 0");
+        println!("[CAMERA] pointer address: 0x0");
+        println!("[CAMERA] capture duration: {:?}", camera_duration);
+        println!("[WARNING] [CAMERA] capture failed: read_frame returned invalid frame");
+    }
 
     if let Some(frame_ref) = bridge.read_frame() {
         if let Some(frame_view) = bridge.frame_view() {
@@ -232,12 +279,22 @@ pub extern "C" fn update_instance(instance: *mut c_void) {
             let _ = state
                 .executor
                 .tick_with_frame(&mut bridge, frame_ref, frame_view, elapsed);
+        } else {
+            println!("[WARNING] [FACE TRACKING] frame_view is None");
+            let dt = bridge.timing.dt;
+            let elapsed = bridge.timing.elapsed;
+            let _ = state.executor.tick(&mut bridge, dt, elapsed);
         }
     } else {
         let dt = bridge.timing.dt;
         let elapsed = bridge.timing.elapsed;
         let _ = state.executor.tick(&mut bridge, dt, elapsed);
     }
+
+    println!("========== FRAME END ============");
+    println!("frame_number: {}", frame_num);
+    println!("total frame time: {:?}", start_update_time.elapsed());
+    println!("===============================");
 }
 
 #[no_mangle]

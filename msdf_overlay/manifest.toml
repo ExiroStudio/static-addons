@@ -1,0 +1,178 @@
+manifest_version = 1
+
+# ---- identity ----
+id          = "msdf-overlay"
+name        = "MSDF Text Overlay"
+version     = "1.0.0"
+author      = "static (example)"
+description = "High-quality, signal-driven MSDF text overlay addon. Consumes face.position/rotation/scale via @group(3) and draws instanced characters that follow the face."
+license     = "MIT"
+tags        = ["filter", "overlay", "msdf", "text", "signal", "native"]
+
+# ---- engine compatibility ----
+api_min = 1
+api_max = 1
+
+# ---- kind ----
+kind = "pipeline"
+runner = "native"
+entry = "target/release/libmsdf_overlay.so"
+
+[[shaders]]
+id    = "vertex"
+path  = "shaders/msdf.wgsl"
+stage = "vertex"
+entry = "vs_instanced"
+
+[[shaders]]
+id    = "fragment"
+path  = "shaders/msdf.wgsl"
+stage = "fragment"
+entry = "fs_main"
+
+# ---- parameters ----
+# Declared alphabetically to determine sorted @group(2) uniform layout:
+# 1. color_b
+# 2. color_g
+# 3. color_r
+# 4. expression_index
+# 5. mask_size
+# 6. opacity
+# 7. tracking
+
+[params.color_b]
+type    = "f32"
+default = 0.80
+min     = 0.0
+max     = 1.0
+label   = "Color Blue"
+group   = "Style"
+
+[params.color_g]
+type    = "f32"
+default = 1.0
+min     = 0.0
+max     = 1.0
+label   = "Color Green"
+group   = "Style"
+
+[params.color_r]
+type    = "f32"
+default = 0.72
+min     = 0.0
+max     = 1.0
+label   = "Color Red"
+group   = "Style"
+
+[params.expression_index]
+type    = "f32"
+default = 0.0
+min     = 0.0
+max     = 7.0
+label   = "Expression Index"
+group   = "Content"
+help    = "0: >_<, 1: HELLO, 2: TRACKING, 3: FACE, 4: 10 glyphs, 5: 100 glyphs, 6: 500 glyphs, 7: 1000 glyphs"
+
+[params.mask_size]
+type    = "f32"
+default = 0.25
+min     = 0.01
+max     = 1.0
+label   = "Mask Size"
+group   = "Layout"
+
+[params.mirror_x]
+type    = "bool"
+default = true
+label   = "Mirror X"
+group   = "Calibration"
+help    = "Flip horizontally."
+
+[params.mirror_y]
+type    = "bool"
+default = false
+label   = "Mirror Y"
+group   = "Calibration"
+help    = "Flip vertically."
+
+[params.offset_x]
+type    = "f32"
+default = 0.0
+min     = -2.0
+max     = 2.0
+label   = "Offset X"
+group   = "Calibration"
+help    = "Horizontal center offset."
+
+[params.offset_y]
+type    = "f32"
+default = 0.0
+min     = -2.0
+max     = 2.0
+label   = "Offset Y"
+group   = "Calibration"
+help    = "Vertical center offset."
+
+[params.rotation_offset]
+type    = "f32"
+default = 0.0
+min     = -3.14159
+max     = 3.14159
+label   = "Rotation Offset"
+group   = "Calibration"
+help    = "Rotation calibration in radians."
+
+[params.scale_mul]
+type    = "f32"
+default = 1.0
+min     = 0.0
+max     = 5.0
+label   = "Scale Multiplier"
+group   = "Calibration"
+help    = "Scale multiplier."
+
+[params.opacity]
+type    = "f32"
+default = 0.9
+min     = 0.0
+max     = 1.0
+label   = "Opacity"
+group   = "Style"
+
+[params.tracking]
+type    = "f32"
+default = 1.0
+min     = 0.5
+max     = 2.0
+label   = "Tracking"
+group   = "Layout"
+help    = "Horizontal spacing multiplier."
+
+# ---- signals consumed ----
+[[consume]]
+name     = "face.position"
+kind     = "vec2"
+optional = true
+
+[[consume]]
+name     = "face.rotation"
+kind     = "vec3"
+optional = true
+
+[[consume]]
+name     = "face.scale"
+kind     = "f32"
+optional = true
+
+# ---- pipeline descriptor ----
+[pipeline]
+renderer = "instanced"
+
+[pipeline.instance_schema]
+schema_id = 9999
+fields = [
+  { name = "position", type = "vec2" },
+  { name = "uv", type = "vec4" },
+  { name = "color", type = "vec4" },
+  { name = "scale", type = "float" }
+]
