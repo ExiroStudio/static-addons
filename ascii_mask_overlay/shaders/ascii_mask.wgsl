@@ -171,27 +171,7 @@ fn fs_main(in: VsOut) -> @location(0) vec4<f32> {
             dmin
         );
 
-    //--------------------------------------
-    // BOX
-    //--------------------------------------
 
-    let box_d =
-        abs(
-            max(
-                abs(local.x),
-                abs(local.y)
-            ) - 1.10
-        );
-
-    let frame =
-        (
-            1.0
-            - smoothstep(
-                0.0,
-                0.02,
-                box_d
-            )
-        ) * 0.22;
 
     //--------------------------------------
 
@@ -218,10 +198,7 @@ fn fs_main(in: VsOut) -> @location(0) vec4<f32> {
         );
 
     let mark =
-        max(
-            ink,
-            frame
-        )
+        ink
         * scan
         * flicker;
 
