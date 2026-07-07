@@ -1,0 +1,60 @@
+manifest_version = 1
+
+# ---- identity ----
+id          = "occupancy-density"
+name        = "Occupancy Density"
+version     = "1.0.0"
+author      = "Static Labs"
+description = "Watch Dogs style procedural dot rendering based on brightness density."
+license     = "MIT"
+tags        = ["dot", "matrix", "density", "watchdogs", "halftone"]
+
+# ---- engine compatibility ----
+api_min = 1
+api_max = 1
+
+# ---- kind ----
+kind = "pipeline"
+
+# ---- declarations ----
+[permissions]
+filesystem = "addon_local"
+network    = "none"
+gpu        = "default"
+
+[[shaders]]
+id    = "main"
+path  = "shaders/density.wgsl"
+stage = "fragment"
+entry = "fs_main"
+
+# ---- parameters (drive the schema-generated config UI) ----
+# Declared alphabetically; the engine sorts by key, so a generic runner can pack
+# them into the shader's @group(2) uniform in this exact order.
+
+[params.cell_size]
+type    = "f32"
+default = 8.0
+min     = 2.0
+max     = 64.0
+label   = "Cell Size"
+group   = "Layout"
+help    = "Size of each dot cell in pixels."
+
+[params.dot_radius]
+type    = "f32"
+default = 0.35
+min     = 0.05
+max     = 0.5
+label   = "Dot Radius"
+group   = "Shape"
+help    = "Radius of the dot relative to the cell size."
+
+[params.gamma]
+type    = "f32"
+default = 1.8
+min     = 0.1
+max     = 5.0
+label   = "Gamma"
+group   = "Rendering"
+help    = "Gamma correction applied to brightness before occupancy calculation."
