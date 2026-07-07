@@ -58,3 +58,39 @@ max     = 5.0
 label   = "Gamma"
 group   = "Rendering"
 help    = "Gamma correction applied to brightness before occupancy calculation."
+
+[params.highlight]
+type    = "f32"
+default = 0.82
+min     = 0.0
+max     = 1.0
+label   = "Highlight Rolloff"
+group   = "Occupancy Curve"
+help    = "Brightness threshold where maximum occupancy is reached."
+
+[params.highlight_ceiling]
+type    = "f32"
+default = 0.92
+min     = 0.0
+max     = 1.0
+label   = "Highlight Ceiling"
+group   = "Occupancy Curve"
+help    = "Maximum density limit (0.0 to 1.0) to prevent completely solid blocks."
+
+[params.shadow]
+type    = "f32"
+default = 0.08
+min     = 0.0
+max     = 1.0
+label   = "Shadow Lift"
+group   = "Occupancy Curve"
+help    = "Brightness threshold where dots begin to form above the floor."
+
+[params.shadow_floor]
+type    = "f32"
+default = 0.02
+min     = 0.0
+max     = 1.0
+label   = "Shadow Floor"
+group   = "Occupancy Curve"
+help    = "Minimum background density activity (0.0 to 1.0) in pitch black."

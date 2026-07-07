@@ -2,16 +2,19 @@ struct Params {
     cell_size: f32,
     dot_radius: f32,
     gamma: f32,
+    highlight: f32,
+    highlight_ceiling: f32,
+    shadow: f32,
+    shadow_floor: f32,
     _pad: f32,
 };
 @group(2) @binding(0) var<uniform> params: Params;
 
-// Procedural hash function (2D to 1D)
-// Returns a deterministic pseudorandom value in [0.0, 1.0]
-fn hash21(p: vec2<f32>) -> f32 {
-    let q = vec2<f32>(dot(p, vec2<f32>(127.1, 311.7)),
-                      dot(p, vec2<f32>(269.5, 183.3)));
-    return fract(sin(q.x + q.y) * 43758.5453123);
+// Interleaved Gradient Noise (IGN)
+// Provides a pseudo-blue noise distribution procedurally, preventing organic clumping.
+fn ign(cell: vec2<f32>) -> f32 {
+    let f = dot(cell, vec2<f32>(0.06711056, 0.00583715));
+    return fract(52.9829189 * fract(f));
 }
 
 @fragment
@@ -30,12 +33,19 @@ fn fs_main(in: VsOut) -> @location(0) vec4<f32> {
     // maximizing hardware texture cache hits and keeping LOD derivatives stable.
     let luma = sample_luma(cell_center_uv);
     
-    // Apply gamma curve to convert linear brightness into a perceived density.
-    // This allows highlights to look organic without immediately clamping to a solid block.
-    let density = pow(luma, params.gamma);
+    // 1. Mid-tone control (gamma curve)
+    let percept = pow(luma, params.gamma);
+    
+    // 2. Soften the transitions (S-Curve for organic gradients)
+    let shaped = smoothstep(params.shadow, params.highlight, percept);
+    
+    // 3. Compress the occupancy range
+    // Darkest areas maintain shadow_floor activity (alive, not dead)
+    // Brightest areas cap at highlight_ceiling activity (dense, but with breathing holes)
+    let density = mix(params.shadow_floor, params.highlight_ceiling, shaped);
     
     // Generate the procedural spatial energy distribution for this cell
-    let noise = hash21(cell_coord);
+    let noise = ign(cell_coord);
     
     // Occupancy test: a dot is only drawn if the cell's density overcomes its noise threshold
     let is_active = density > noise;
